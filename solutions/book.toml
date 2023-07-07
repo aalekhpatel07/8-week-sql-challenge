@@ -1,0 +1,29 @@
+[book]
+title = "8-Week SQL Challenge"
+authors = ["Aalekh Patel <aalekh.gwpeck.7998@icloud.com>"]
+description = "Implements solutions for some of the case studies of the 8 Week SQL Challenge."
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+theme = "navy"
+default-theme = "navy"
+preferred-dark-theme = "navy"
+curly-quotes = true
+mathjax-support = true
+git-repository-url = "https://github.com/aalekhpatel07/8-week-sql-challenge"
+git-repository-icon = "fa-github"
+site-url = "/8-week-sql-challenge/"
+
+[output.html.print]
+enable = true
+page-break = true
+
+[output.html.playground]
+editable = true
+
