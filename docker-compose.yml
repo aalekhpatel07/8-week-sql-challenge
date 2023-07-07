@@ -9,6 +9,7 @@ services:
     ports:
       - '5432:5432'
     volumes: 
-      - ./postgres_db:/var/lib/postgresql/data
+      - ./postgres_db:/var/lib/postgresql/data # Persist the data.
+      - ./schema:/docker-entrypoint-initdb.d/ # Make sure all schemas are set up at boot.
 volumes:
   postgres_db:
