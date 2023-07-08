@@ -6,8 +6,13 @@ We'll try to implement solutions for some of the case studies from [8 Week SQL C
 
 ## Solutions/Walkthroughs
 
-Read the [book](https://aalekhpatel07.github.io/8-week-sql-challenge/) and follow along!
+Read the [book](https://aalekhpatel07.github.io/8-week-sql-challenge/) and follow along! 
 
+Or jump to individual challenges:
+
+- [x] [Danny's Diner](https://aalekhpatel07.github.io/8-week-sql-challenge/01-dannys-diner/index.html)
+- [ ] [Pizza Runner](https://aalekhpatel07.github.io/8-week-sql-challenge/02-pizza-runner/index.html)
+- [ ] ...
 ## Setting up
 
 If you wish to follow along these solutions, you might find the best value in running them as you go, and for that you need a working Postgres database environment.
