@@ -2,7 +2,7 @@
 
 How many days has each customer visited the restaurant?
 
-# Solution
+## Solution
 
 ```sql
 SELECT customer_id, COUNT(DISTINCT order_date)

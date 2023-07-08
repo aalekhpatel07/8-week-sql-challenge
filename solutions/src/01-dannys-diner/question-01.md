@@ -2,7 +2,7 @@
 
 What is the total amount each customer spent at the restaurant?
 
-# Solution
+## Solution
 
 ```sql
 SELECT customer_id, '$' || SUM(price) as total_amount_spent
