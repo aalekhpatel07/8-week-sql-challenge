@@ -113,3 +113,77 @@ VALUES
   (10, 'Salami'),
   (11, 'Tomatoes'),
   (12, 'Tomato Sauce');
+
+-- Modifications to the schema to sanitize data directly in the tables.
+
+ALTER TABLE customer_orders
+  ADD COLUMN IF NOT EXISTS extras__clean VARCHAR(4) GENERATED ALWAYS AS (
+    CASE extras IS NULL
+      WHEN TRUE THEN NULL
+      ELSE (
+        NULLIF(
+          CASE LOWER(extras)
+            WHEN 'null' THEN ''
+            ELSE TRIM(REPLACE(extras, ' ', ''))
+          END,
+          ''
+        )
+      )
+    END
+  ) STORED,
+  ADD COLUMN IF NOT EXISTS exclusions__clean VARCHAR(255) GENERATED ALWAYS AS (
+    CASE exclusions IS NULL
+      WHEN TRUE THEN NULL
+      ELSE (
+        NULLIF(
+          CASE LOWER(exclusions)
+            WHEN 'null' THEN ''
+            ELSE TRIM(REPLACE(exclusions, ' ', ''))
+          END,
+          ''
+        )
+      )
+    END
+  ) STORED;
+
+ALTER TABLE runner_orders
+  ADD COLUMN IF NOT EXISTS distance__clean_kms FLOAT GENERATED ALWAYS AS (
+    CAST(
+      NULLIF(
+        REGEXP_REPLACE(
+          distance,
+          '^([+-]?([0-9]*[.])?[0-9]*)(.*)$',
+          '\1'
+        ),
+        ''
+      ) AS FLOAT
+    )
+  ) STORED,
+  ADD COLUMN IF NOT EXISTS duration__clean_mins INTEGER GENERATED ALWAYS AS (
+    CAST(
+      NULLIF(
+        REGEXP_REPLACE(
+          duration,
+          '^([+-]?([0-9]*[.])?[0-9]*)(.*)$',
+          '\1'
+        ),
+        ''
+        ) AS INTEGER
+      )
+    ) STORED,
+  ADD COLUMN IF NOT EXISTS cancellation__clean VARCHAR(255) GENERATED ALWAYS AS (
+    CASE runner_orders.cancellation IS NULL
+      WHEN TRUE THEN NULL
+      ELSE (
+        NULLIF(
+          CASE LOWER(cancellation)
+            WHEN 'null' THEN ''
+            WHEN 'customer cancellation' THEN 'customer'
+            WHEN 'restaurant cancellation' THEN 'restaurant'
+            ELSE TRIM(cancellation)
+          END,
+          ''
+          )
+        )
+      END
+    ) STORED;

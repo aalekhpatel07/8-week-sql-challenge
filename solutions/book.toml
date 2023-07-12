@@ -8,7 +8,7 @@ src = "src"
 
 [build]
 build-dir = "book"
-create-missing = false
+create-missing = true
 
 [output.html]
 curly-quotes = true

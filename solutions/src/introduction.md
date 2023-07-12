@@ -35,3 +35,8 @@ docker run \
 Once the container has started, use your favourite IDE to connect to the database at `0.0.0.0:5432`. 
 
 The database has user/pass of `postgres/postgres` and the URL is `jdbc:postgresql://localhost:5432/`.
+
+### Jump to Solutions
+
+1. [x] [Danny's Diner](./01-dannys-diner/)
+2. [ ] [Pizza Runner](./02-pizza-runner/)
