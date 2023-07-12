@@ -388,9 +388,96 @@ Again, there are many questions in this case study - please feel free to pick an
 
 Before you start writing your SQL queries however - you might want to investigate the data, you may want to do something with some of those `null` values and data types in the `customer_orders` and `runner_orders` tables!
 
-### E. Bonus Questions
+### Prelude
 
-If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an `INSERT` statement to demonstrate what would happen if a new `Supreme` pizza with all the toppings was added to the Pizza Runner menu?
+Before we begin making our queries, we'll sanitize the `customer_orders` and `runner_orders` tables by creating [generated columns](https://www.postgresql.org/docs/current/ddl-generated-columns.html) with names appended `"__clean"` for the columns that have dirty data and populate them with the sanitized data. This way, the existing database can still be used for CRUD operations and the clean data required for analysis will be auto-generated from the dirty data in real-time.
+
+- On the `customer_orders` table:
+  - Transform the `extras` column values to `NULL` when the string is `"null"` , as well as remove any spaces so that the values are comma-separated list of integers.
+  - Collapse the `exclusions` column to an empty string when the value is `NULL` or the string `"null"`, as well as remove any spaces so that the values are comma-separated list of integers.
+
+  ```sql
+  ALTER TABLE customer_orders
+    ADD COLUMN IF NOT EXISTS extras__clean VARCHAR(4) GENERATED ALWAYS AS (
+        CASE extras IS NULL
+            WHEN TRUE THEN NULL
+            ELSE (
+                NULLIF(
+                    CASE LOWER(extras)
+                        WHEN 'null' THEN ''
+                        ELSE TRIM(REPLACE(extras, ' ', ''))
+                    END,
+                    ''
+                )
+            )
+        END
+    ) STORED,
+    ADD COLUMN IF NOT EXISTS exclusions__clean VARCHAR(255) GENERATED ALWAYS AS (
+        CASE exclusions IS NULL
+            WHEN TRUE THEN NULL
+            ELSE (
+                NULLIF(
+                    CASE LOWER(exclusions)
+                        WHEN 'null' THEN ''
+                        ELSE TRIM(REPLACE(exclusions, ' ', ''))
+                    END,
+                    ''
+                )
+            )
+        END
+    ) STORED;
+  ```
+
+- On the `runner_orders` table:
+  - Replace all the non-`cancellation` values with `NULL`, and simplify the `"Restaurant Cancellation"` and `"Customer Cancellation"` strings:
+  - Assuming that `distance` is always in kilometers, replace the values with just the numbers using regex.
+  - Assuming that `duration` is always in minutes, replace the values with just the numbers using regex.
+
+  ```sql
+  ALTER TABLE runner_orders
+    ADD COLUMN IF NOT EXISTS distance__clean_kms FLOAT GENERATED ALWAYS AS (
+      CAST(
+        NULLIF(
+          REGEXP_REPLACE(
+            distance,
+            '^([+-]?([0-9]*[.])?[0-9]*)(.*)$',
+            '\1'
+          ),
+          ''
+        ) AS FLOAT
+      )
+    ) STORED,
+    ADD COLUMN IF NOT EXISTS duration__clean_mins INTEGER GENERATED ALWAYS AS (
+      CAST(
+        NULLIF(
+          REGEXP_REPLACE(
+            duration,
+            '^([+-]?([0-9]*[.])?[0-9]*)(.*)$',
+            '\1'
+          ),
+          ''
+          ) AS INTEGER
+        )
+      ) STORED,
+    ADD COLUMN IF NOT EXISTS cancellation__clean VARCHAR(255) GENERATED ALWAYS AS (
+      CASE runner_orders.cancellation IS NULL
+        WHEN TRUE THEN NULL
+        ELSE (
+          NULLIF(
+            CASE LOWER(cancellation)
+              WHEN 'null' THEN ''
+              WHEN 'customer cancellation' THEN 'customer'
+              WHEN 'restaurant cancellation' THEN 'restaurant'
+              ELSE TRIM(cancellation)
+            END,
+            ''
+            )
+          )
+        END
+      ) STORED;
+  ```
+
+### Solutions to the sections.
 
 #### [A. Pizza Metrics](./pizza-metrics/)
 #### [B. Runner and Customer Experience](./runner-and-customer-experience/)
